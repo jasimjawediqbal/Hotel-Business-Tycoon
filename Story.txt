@@ -1,0 +1,289 @@
+Title
+“Echoes of a Forgotten Legacy”
+
+(aka: The Last Will – Hotel Legacy)
+
+Genre:
+Story-driven 2D management game • Mystery • Choice-based narrative
+
+Core Premise
+
+You play as Arman Ayaan (name customizable) — a young man who escaped poverty by working low-end jobs in a distant city. After the death of his father and later revelations from his grandfather, he returns home to inherit a closed, decaying family hotel/motel on the edge of the city.
+
+What starts as a simple survival and business challenge slowly unravels into a dark legacy involving hidden ledgers, buried deaths, corruption, rival corporations, and a question that defines the game:
+
+Is legacy worth more than money?
+
+CHAPTER-BY-CHAPTER STORY + GAMEPLAY FLOW
+Chapter 1: Homecoming to Ruins
+
+Arman receives a late-night call.
+His father has passed away, and his grandfather insists he return immediately.
+
+Back home, Arman learns the truth:
+
+The family never sold their old roadside hotel
+
+It was shut down decades ago after “incidents”
+
+The property is now in terrible condition — broken rooms, no reputation, almost no income
+
+Key Characters Introduced
+
+Maya – Arman’s mother (emotional anchor)
+
+Rashid – Old hotel manager who stayed loyal
+
+Grandfather – Knows more than he admits
+
+Gameplay Introduced
+
+Basic check-ins
+
+Assigning rooms
+
+Collecting payments
+
+Paying bills
+
+Repairing first rooms
+
+⚠️ Income is low. Expenses never stop.
+
+Chapter 2: The Locked Gates
+
+Arman visits the hotel fully for the first time:
+
+Vandalized rooms
+
+Locals avoid the place
+
+Rumors of “bad nights”
+
+Grandfather admits:
+
+“This place didn’t close because of money… it closed because of fear.”
+
+Player Choice
+
+Reopen slowly (room-by-room)
+
+Delay reopening and earn money through city jobs
+
+Consequences
+
+Reopening unlocks long-term potential but financial pressure
+
+Delaying weakens emotional bonds and future growth
+
+Chapter 3: The Old Register (Hidden Ledger)
+
+While cleaning reception, Arman finds:
+
+A guest register from the 1970s
+
+Names of activists, artists, smugglers, politicians
+
+Pages torn out
+
+Rashid becomes uneasy.
+Grandfather avoids questions.
+
+Player Choice
+
+Investigate the past
+
+Ignore it and focus on business
+
+Consequences
+
+Investigation unlocks mystery quests, hidden income, and danger
+
+Ignoring keeps things safer but limits growth and endings
+
+Chapter 4: Staff, Salaries & Rashid’s Debt
+
+The hotel starts attracting guests.
+More staff are needed:
+
+Cleaners
+
+Security
+
+Parking staff
+
+Rashid reveals the truth:
+He owes money to a dangerous lender connected to local power figures.
+
+Player Choices
+
+Pay off the debt → Costly but earns loyalty
+
+Negotiate → Risky
+
+Expose the lender → Triggers retaliation
+
+Consequences
+
+Paid staff = high morale & better service
+
+Unpaid staff = mistakes, bad reviews, sabotage
+
+Failed choices lead to inspections, power cuts, threats
+
+Chapter 5: The Rival’s Shadow
+
+A corporate chain / local tycoon (Horizon Hospitality / Kamal Raza) approaches Arman.
+
+“Sell the property. Let the past stay buried.”
+
+After refusal:
+
+Fake reviews
+
+Supplier blockages
+
+Break-ins
+
+Power failures
+
+Player Choice
+
+Sell the hotel → Immediate money
+
+Refuse and fight back → Hard mode
+
+Consequences
+
+Selling ends the legacy early
+
+Refusing increases difficulty but unlocks true success paths
+
+Chapter 6: The Ghost Room (Room 9 / Room 13)
+
+Guests complain:
+
+Sounds at night
+
+Lights turning on
+
+Someone crying
+
+Grandfather finally confesses:
+Someone died mysteriously in that room decades ago.
+
+Player Choice
+
+Uncover the truth
+
+Seal the room permanently
+
+Consequences
+
+Truth turns hotel into a mystery / haunted destination
+
+Sealing avoids fear but loses income and reputation potential
+
+Chapter 7: The Lost Treasure & Ownership War
+
+An old employee hints:
+
+“Your father hid something… in case things went wrong.”
+
+At the same time:
+
+Legal documents surface
+
+Ownership papers are incomplete
+
+Someone is trying to claim the land
+
+Player Choice
+
+Search for the hidden treasure
+
+Focus only on business
+
+Fight legally
+
+Settle quietly
+
+Consequences
+
+Treasure = financial rescue or crucial evidence
+
+Legal victory secures full control
+
+Settling weakens final endings
+
+Chapter 8: Climax – Legacy or Escape
+
+All systems collide:
+
+Hotel upgrades
+
+Staff morale
+
+Reputation
+
+Mystery resolution
+
+Financial stability
+
+Moral choices
+
+The game asks one final question:
+
+Did you save a building — or a legacy?
+
+FINAL ENDINGS
+🏆 1. Golden Legacy / Legacy Reborn (Best Ending)
+
+History restored
+
+Ghost room truth revealed
+
+Rashid saved
+
+Rival defeated legally
+
+Treasure found
+
+Staff loyal, reputation high
+
+Result:
+The hotel becomes a cultural landmark, known for mystery, history, and hospitality.
+Arman fulfills his father’s dream and builds his own.
+
+🌅 2. Hard-Earned / Quiet Success (Mid Ending)
+
+Good management
+
+Some mysteries ignored
+
+Stable finances
+
+Result:
+The hotel survives and prospers — but never becomes legendary.
+A peaceful life, lingering “what ifs”.
+
+💰 3. Bittersweet Sale / Sold Silence (Bad Ending)
+
+Hotel sold under pressure
+
+Result:
+Arman gains wealth but loses identity.
+The hotel is demolished.
+Legacy erased.
+
+💀 4. Ruin / Lost Again (Worst Ending)
+
+Debt overwhelms
+
+Staff unpaid
+
+Reputation collapses
+
+Result:
+Hotel shuts down permanently.
+Arman returns to the same cycle he tried to escape.
