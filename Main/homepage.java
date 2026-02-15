@@ -1,8 +1,16 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.Random;
 
 // ===================== MODEL =====================
@@ -91,6 +99,16 @@ class BackgroundPanel extends JPanel implements ActionListener {
             confettiSpeed[i] = 0.3f + rand.nextFloat() * 0.8f;
             confettiSize[i] = 3 + rand.nextInt(4);
             confettiColor[i] = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+        }
+    }
+
+    public void stopAnimation() {
+        timer.stop();
+    }
+
+    public void startAnimation() {
+        if (!timer.isRunning()) {
+            timer.start();
         }
     }
 
@@ -275,7 +293,7 @@ class BackgroundPanel extends JPanel implements ActionListener {
         }
 
         // Hotel sign with glow
-        int signW = w / 2;
+        int signW = (int) (w * 0.62f);
         int signH = 28;
         int signX = x + w / 2 - signW / 2;
         int signY = y - 44;
@@ -284,8 +302,10 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.setColor(new Color(255, 230, 160, (int) (180 + 60 * night)));
         g2.setStroke(new BasicStroke(2f));
         g2.drawRoundRect(signX + 2, signY + 2, signW - 4, signH - 4, 8, 8);
-        g2.setFont(new Font("Serif", Font.BOLD, 20));
-        g2.drawString("HOTEL", signX + 18, signY + 19);
+        g2.setFont(new Font("Serif", Font.BOLD, 18));
+        String boardName = "Hotel Taj";
+        int boardX = signX + (signW - g2.getFontMetrics().stringWidth(boardName)) / 2;
+        g2.drawString(boardName, boardX, signY + 20);
 
         // Windows with frames and reflections
         int rows = WINDOW_ROWS;
@@ -412,9 +432,375 @@ class BackgroundPanel extends JPanel implements ActionListener {
 
 // ===================== (MenuButton & SettingsDialog remain unchanged) =====================
 
+class OpeningSceneDialog extends JDialog {
+    private final Runnable onStoryComplete;
+    private final JTextPane narrativeArea = new JTextPane();
+    private final JLabel continueLabel = new JLabel("Press Enter to continue", SwingConstants.CENTER);
+    private final PhotoNotePanel photoNotePanel = new PhotoNotePanel();
+    private final RainAudioPlayer rainAudioPlayer = new RainAudioPlayer();
+    private final String[] scenes = {
+            "\"Some places don't die.\nThey wait.\"",
+            "\nA small, dimly lit rented room in a distant city.\nArman sits on the edge of the bed, still in work clothes: tired, worn, but alert.",
+            "On a small table:\n- An unpaid electricity bill\n- A cheap phone\n- A folded photograph turned face-down",
+            "The phone vibrates. Not a ringtone. Just vibration.\n\nUnknown Number.",
+            "A shaky, old voice comes through:\n\n\"Arman... You need to come home.\"\n\nA pause.\n\n\"Your father... he's gone.\"",
+            "Grandfather continues:\n\n\"There's something else.\nSomething you were meant to inherit.\"\n\nArman stares at the face-down photograph.",
+            "The photograph is turned over.\n\nIt's the hotel - old, but alive.\n\n\"The hotel... we never sold it.\"\n\"It's still ours.\"",
+            "ECHOES OF A FORGOTTEN LEGACY\n\nChapter 1: Homecoming to Ruins"
+    };
+    private final String[] sceneImageFiles = {
+            null,
+            "scene1.jpg",
+            "scene1.jpg",
+            "caller.png",
+            "scene3.jpg",
+            "scene3.jpg",
+            "scene4.jpg",
+            "scene4.jpg"
+    };
+    private final double[] sceneTiltDegrees = {-7.0, -9.5, -6.0, -12.0, -8.0, -5.5, -10.0, -7.5};
+
+    private int sceneIndex = 0;
+    private boolean completionDispatched = false;
+
+    public OpeningSceneDialog(JFrame parent, Runnable onStoryComplete) {
+        super(parent, true);
+        this.onStoryComplete = onStoryComplete;
+
+        setTitle("Opening Story");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setBounds(parent.getBounds());
+        setResizable(true);
+
+        JPanel root = new JPanel(null);
+        root.setBackground(Color.BLACK);
+        setContentPane(root);
+
+        narrativeArea.setEditable(false);
+        narrativeArea.setOpaque(false);
+        narrativeArea.setForeground(new Color(236, 236, 236));
+        narrativeArea.setFont(new Font("Serif", Font.PLAIN, 28));
+        narrativeArea.setFocusable(false);
+        narrativeArea.setBorder(null);
+        narrativeArea.setHighlighter(null);
+
+        continueLabel.setForeground(new Color(160, 160, 160));
+        continueLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        photoNotePanel.setOpaque(false);
+
+        root.add(narrativeArea);
+        root.add(continueLabel);
+        root.add(photoNotePanel);
+
+        root.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                layoutStoryComponents();
+            }
+        });
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                layoutStoryComponents();
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                dispatchCompletionIfNeeded();
+            }
+        });
+
+        setupKeyBindings(root);
+        layoutStoryComponents();
+        playRainForStory();
+        showScene(0);
+    }
+
+    private void setupKeyBindings(JComponent root) {
+        InputMap inputMap = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = root.getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "advanceScene");
+        actionMap.put("advanceScene", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                advanceScene();
+            }
+        });
+    }
+
+    private void showScene(int index) {
+        sceneIndex = index;
+        setCenteredStoryText(scenes[index]);
+        updateSceneImage(index);
+        layoutStoryComponents();
+
+        if (sceneIndex == scenes.length - 1) {
+            continueLabel.setText("Press Enter to return to menu");
+        } else {
+            continueLabel.setText("Press Enter to continue");
+        }
+    }
+
+    private void advanceScene() {
+        if (sceneIndex < scenes.length - 1) {
+            showScene(sceneIndex + 1);
+            return;
+        }
+
+        dispose();
+    }
+
+    private void layoutStoryComponents() {
+        int width = getContentPane().getWidth();
+        int height = getContentPane().getHeight();
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        int sideMargin = 80;
+
+        int noteWidth = 245;
+        int noteHeight = 245;
+        int noteX = width - noteWidth - 34;
+        int noteY = height - noteHeight - 56;
+        photoNotePanel.setBounds(noteX, noteY, noteWidth, noteHeight);
+
+        int rightReserved = photoNotePanel.isVisible() ? (noteWidth + 64) : sideMargin;
+        int textWidth = Math.max(240, width - sideMargin - rightReserved);
+        int textHeight = Math.max(170, (int) (height * 0.56));
+        int textY = Math.max(38, (height - textHeight) / 2 - 16);
+        narrativeArea.setBounds(sideMargin, textY, textWidth, textHeight);
+
+        continueLabel.setBounds(0, height - 36, width, 20);
+    }
+
+    private void setCenteredStoryText(String text) {
+        StyledDocument doc = narrativeArea.getStyledDocument();
+        SimpleAttributeSet attrs = new SimpleAttributeSet();
+        StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setForeground(attrs, new Color(236, 236, 236));
+        try {
+            doc.remove(0, doc.getLength());
+            doc.insertString(0, text, attrs);
+            doc.setParagraphAttributes(0, doc.getLength(), attrs, false);
+            narrativeArea.setCaretPosition(0);
+        } catch (BadLocationException ex) {
+            narrativeArea.setText(text);
+        }
+    }
+
+    private void updateSceneImage(int index) {
+        if (index < 0 || index >= sceneImageFiles.length) {
+            photoNotePanel.setVisible(false);
+            return;
+        }
+
+        String imageName = sceneImageFiles[index];
+        if (imageName == null) {
+            photoNotePanel.setVisible(false);
+            return;
+        }
+
+        File imageFile = resolveAssetFile(imageName);
+        if (!imageFile.exists()) {
+            photoNotePanel.setVisible(false);
+            return;
+        }
+
+        Image image = new ImageIcon(imageFile.getAbsolutePath()).getImage();
+        photoNotePanel.setSceneImage(image, sceneTiltDegrees[index]);
+        photoNotePanel.setVisible(true);
+        photoNotePanel.repaint();
+    }
+
+    private void playRainForStory() {
+        File rainFile = resolveAssetFile("rain.mp3");
+        rainAudioPlayer.start(rainFile);
+    }
+
+    private File resolveAssetFile(String fileName) {
+        File local = new File(fileName);
+        if (local.exists()) {
+            return local;
+        }
+        return new File("..", fileName);
+    }
+
+    @Override
+    public void dispose() {
+        rainAudioPlayer.stop();
+        super.dispose();
+    }
+
+    private void dispatchCompletionIfNeeded() {
+        if (completionDispatched) {
+            return;
+        }
+        completionDispatched = true;
+        onStoryComplete.run();
+    }
+
+    private static class PhotoNotePanel extends JPanel {
+        private Image sceneImage;
+        private double tiltDegrees = -7.0;
+
+        public void setSceneImage(Image sceneImage, double tiltDegrees) {
+            this.sceneImage = sceneImage;
+            this.tiltDegrees = tiltDegrees;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (sceneImage == null) {
+                return;
+            }
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+            int panelW = getWidth();
+            int panelH = getHeight();
+            g2.translate(panelW / 2.0, panelH / 2.0);
+            g2.rotate(Math.toRadians(tiltDegrees));
+
+            int frameW = (int) (panelW * 0.86);
+            int frameH = (int) (panelH * 0.90);
+            int frameX = -frameW / 2;
+            int frameY = -frameH / 2;
+
+            g2.setColor(new Color(0, 0, 0, 95));
+            g2.fillRoundRect(frameX + 8, frameY + 10, frameW, frameH, 18, 18);
+
+            g2.setColor(new Color(250, 245, 232));
+            g2.fillRoundRect(frameX, frameY, frameW, frameH, 16, 16);
+
+            g2.setColor(new Color(194, 167, 120));
+            g2.setStroke(new BasicStroke(3f));
+            g2.drawRoundRect(frameX, frameY, frameW, frameH, 16, 16);
+
+            int innerPad = 13;
+            int bottomPad = 36;
+            int photoX = frameX + innerPad;
+            int photoY = frameY + innerPad;
+            int photoW = frameW - (innerPad * 2);
+            int photoH = frameH - innerPad - bottomPad;
+
+            Shape oldClip = g2.getClip();
+            g2.setClip(photoX, photoY, photoW, photoH);
+
+            int imageW = Math.max(1, sceneImage.getWidth(null));
+            int imageH = Math.max(1, sceneImage.getHeight(null));
+            double scale = Math.max((double) photoW / imageW, (double) photoH / imageH);
+            int drawW = (int) Math.round(imageW * scale);
+            int drawH = (int) Math.round(imageH * scale);
+            int drawX = photoX + (photoW - drawW) / 2;
+            int drawY = photoY + (photoH - drawH) / 2;
+            g2.drawImage(sceneImage, drawX, drawY, drawW, drawH, null);
+            g2.setClip(oldClip);
+
+            g2.setColor(new Color(110, 95, 78, 100));
+            g2.drawRect(photoX, photoY, photoW, photoH);
+            g2.dispose();
+        }
+    }
+
+    private static class RainAudioPlayer {
+        private Clip clip;
+        private Process windowsPlayerProcess;
+
+        public void start(File audioFile) {
+            stop();
+            if (audioFile == null || !audioFile.exists()) {
+                return;
+            }
+
+            if (startWithJavaClip(audioFile)) {
+                return;
+            }
+
+            if (isWindows() && startWithWindowsMediaPlayer(audioFile)) {
+                return;
+            }
+
+            System.err.println("Rain audio could not be played: File of unsupported format");
+        }
+
+        public void stop() {
+            if (clip != null) {
+                clip.stop();
+                clip.close();
+                clip = null;
+            }
+            if (windowsPlayerProcess != null) {
+                windowsPlayerProcess.destroy();
+                windowsPlayerProcess = null;
+            }
+        }
+
+        private boolean startWithJavaClip(File audioFile) {
+            try (AudioInputStream stream = AudioSystem.getAudioInputStream(audioFile)) {
+                clip = AudioSystem.getClip();
+                clip.open(stream);
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                clip.start();
+                return true;
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+
+        private boolean startWithWindowsMediaPlayer(File audioFile) {
+            try {
+                String path = audioFile.getAbsolutePath().replace("\\", "\\\\").replace("'", "''");
+                String script = "$ErrorActionPreference='Stop';"
+                        + "Add-Type -AssemblyName presentationCore;"
+                        + "$player=New-Object System.Windows.Media.MediaPlayer;"
+                        + "$player.Open([Uri]'" + path + "');"
+                        + "$player.Volume=0.70;"
+                        + "$player.MediaEnded += { $player.Position=[TimeSpan]::Zero; $player.Play() };"
+                        + "$player.Play();"
+                        + "while($true){ Start-Sleep -Milliseconds 300 }";
+
+                ProcessBuilder builder = new ProcessBuilder(
+                        "powershell",
+                        "-NoProfile",
+                        "-WindowStyle",
+                        "Hidden",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-Command",
+                        script
+                );
+                builder.redirectErrorStream(true);
+                windowsPlayerProcess = builder.start();
+                try {
+                    Thread.sleep(120);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                if (!windowsPlayerProcess.isAlive()) {
+                    windowsPlayerProcess = null;
+                    return false;
+                }
+                return true;
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+
+        private boolean isWindows() {
+            return System.getProperty("os.name", "").toLowerCase().contains("win");
+        }
+    }
+}
+
 // ===================== CONTROLLER =====================
 public class homepage extends JFrame {
-    private SettingsModel settingsModel = new SettingsModel();
+    private final BackgroundPanel backgroundPanel;
 
     public homepage() {
         setTitle("Hotel Tycoon");
@@ -422,7 +808,7 @@ public class homepage extends JFrame {
         setSize(900, 600);
         setLocationRelativeTo(null);
 
-        BackgroundPanel backgroundPanel = new BackgroundPanel();
+        backgroundPanel = new BackgroundPanel();
         backgroundPanel.setLayout(new GridBagLayout());
         add(backgroundPanel);
 
@@ -434,27 +820,33 @@ public class homepage extends JFrame {
         gbc.weightx = 1.0;
 
         MenuButton startBtn = new MenuButton("START GAME");
-        MenuButton loadBtn = new MenuButton("LOAD GAME");
-        MenuButton settingsBtn = new MenuButton("SETTINGS");
         MenuButton exitBtn = new MenuButton("EXIT");
         startBtn.setToolTipText(null);
-        loadBtn.setToolTipText(null);
-        settingsBtn.setToolTipText(null);
         exitBtn.setToolTipText(null);
 
         gbc.gridy = 0; backgroundPanel.add(startBtn, gbc);
-        gbc.gridy++; backgroundPanel.add(loadBtn, gbc);
-        gbc.gridy++; backgroundPanel.add(settingsBtn, gbc);
         gbc.gridy++; backgroundPanel.add(exitBtn, gbc);
 
-        startBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Start Game clicked!"));
-        loadBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Load Game clicked!"));
-        settingsBtn.addActionListener(e -> new SettingsDialog(this, settingsModel).setVisible(true));
+        startBtn.addActionListener(e -> showOpeningScene());
         exitBtn.addActionListener(e -> System.exit(0));
 
         getRootPane().registerKeyboardAction(e -> System.exit(0),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
+    private void showOpeningScene() {
+        backgroundPanel.stopAnimation();
+        backgroundPanel.setVisible(false);
+
+        OpeningSceneDialog openingSceneDialog = new OpeningSceneDialog(this, this::onStoryFinished);
+        openingSceneDialog.setVisible(true);
+    }
+
+    private void onStoryFinished() {
+        backgroundPanel.setVisible(true);
+        backgroundPanel.startAnimation();
+        backgroundPanel.repaint();
     }
 
     public static void main(String[] args) {
