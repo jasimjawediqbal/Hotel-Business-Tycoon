@@ -843,11 +843,27 @@ public class homepage extends JFrame {
         openingSceneDialog.setVisible(true);
     }
 
+    // private void onStoryFinished() {
+    //     backgroundPanel.setVisible(true);
+    //     backgroundPanel.startAnimation();
+    //     backgroundPanel.repaint();
+    // }
     private void onStoryFinished() {
-        backgroundPanel.setVisible(true);
-        backgroundPanel.startAnimation();
-        backgroundPanel.repaint();
-    }
+    // Instead of returning to menu, start the game
+    startGame();
+}
+
+private void startGame() {
+    // Hide the main menu
+    backgroundPanel.stopAnimation();
+    getContentPane().removeAll();
+    
+    // Create and show NEW reception panel (instead of GamePanel)
+    ReceptionPanel receptionPanel = new ReceptionPanel(this);
+    getContentPane().add(receptionPanel);
+    revalidate();
+    repaint();
+}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
