@@ -10,7 +10,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 import java.util.Random;
 
 // ===================== MODEL =====================
@@ -77,7 +77,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
         timer = new Timer(16, this); // ~60fps
         timer.start();
 
-        for (int i = 0; i < windowLights.length; i++) windowLights[i] = rand.nextBoolean();
+        for (int i = 0; i < windowLights.length; i++)
+            windowLights[i] = rand.nextBoolean();
 
         for (int i = 0; i < STAR_COUNT; i++) {
             starX[i] = rand.nextFloat();
@@ -162,9 +163,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
         int sunSize = (int) (60 + 10 * day);
         g2.setPaint(new RadialGradientPaint(
                 orbX, orbY, sunSize * 0.5f,
-                new float[]{0f, 1f},
-                new Color[]{new Color(255, 230, 120), new Color(255, 180, 60, 0)}
-        ));
+                new float[] { 0f, 1f },
+                new Color[] { new Color(255, 230, 120), new Color(255, 180, 60, 0) }));
         g2.fillOval((int) (orbX - sunSize / 2), (int) (orbY - sunSize / 2), sunSize, sunSize);
 
         // Moon
@@ -179,7 +179,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
         // Clouds with subtle depth
         float cloudAlpha = 0.3f + 0.5f * day;
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, cloudAlpha));
-        for (int i = 0; i < CLOUD_COUNT; i++) drawCloud(g2, cloudX[i], cloudY[i], cloudScale[i]);
+        for (int i = 0; i < CLOUD_COUNT; i++)
+            drawCloud(g2, cloudX[i], cloudY[i], cloudScale[i]);
         g2.setComposite(AlphaComposite.SrcOver);
 
         // Hotel with more detailed facade
@@ -197,13 +198,15 @@ class BackgroundPanel extends JPanel implements ActionListener {
 
         g2.setColor(new Color(220, 220, 220, 200));
         int stripeY = roadY + roadH / 2 - 3;
-        for (int x = -(int) roadOffset; x < width; x += 70) g2.fillRect(x, stripeY, 35, 6);
+        for (int x = -(int) roadOffset; x < width; x += 70)
+            g2.fillRect(x, stripeY, 35, 6);
 
         int walkY = roadY - 18;
         g2.setColor(new Color(170, 170, 175));
         g2.fillRect(0, walkY, width, 18);
         g2.setColor(new Color(150, 150, 155));
-        for (int x = 0; x < width; x += 40) g2.drawLine(x, walkY, x + 20, walkY + 18);
+        for (int x = 0; x < width; x += 40)
+            g2.drawLine(x, walkY, x + 20, walkY + 18);
 
         // Cars with shadows
         drawCar(g2, carX1, roadY + roadH / 2 - 22, new Color(220, 70, 70));
@@ -236,7 +239,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
     private void drawCloud(Graphics2D g2, float x, float y, float scale) {
         int w = (int) (140 * scale);
         int h = (int) (60 * scale);
-        g2.setPaint(new GradientPaint((int)x, (int)y, new Color(255,255,255,180), (int)x+w, (int)y+h, new Color(255,255,255,50)));
+        g2.setPaint(new GradientPaint((int) x, (int) y, new Color(255, 255, 255, 180), (int) x + w, (int) y + h,
+                new Color(255, 255, 255, 50)));
         g2.fillOval((int) x, (int) y, w, h);
         g2.fillOval((int) (x + w * 0.2f), (int) (y - h * 0.3f), (int) (w * 0.6f), (int) (h * 0.7f));
         g2.fillOval((int) (x + w * 0.5f), (int) (y - h * 0.2f), (int) (w * 0.5f), (int) (h * 0.6f));
@@ -246,8 +250,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
         int w = 50;
         int h = 18;
         // shadow
-        g2.setColor(new Color(0,0,0,100));
-        g2.fillRoundRect((int)x+3, y+h-2+3, w, h/3, 8, 8);
+        g2.setColor(new Color(0, 0, 0, 100));
+        g2.fillRoundRect((int) x + 3, y + h - 2 + 3, w, h / 3, 8, 8);
         // body
         g2.setColor(body);
         g2.fillRoundRect((int) x, y, w, h, 8, 8);
@@ -272,7 +276,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
         side.addPoint(x + w + depth, y + depth / 2);
         side.addPoint(x + w + depth, y + h + depth / 2);
         side.addPoint(x + w, y + h);
-        g2.setPaint(new GradientPaint(x + w, y, new Color(175, 150, 120), x + w + depth, y + h, new Color(140, 120, 95)));
+        g2.setPaint(
+                new GradientPaint(x + w, y, new Color(175, 150, 120), x + w + depth, y + h, new Color(140, 120, 95)));
         g2.fillPolygon(side);
 
         // Main facade
@@ -391,17 +396,22 @@ class BackgroundPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         cycle += cycleSpeed;
-        if (cycle > 1f) cycle -= 1f;
+        if (cycle > 1f)
+            cycle -= 1f;
 
         int width = Math.max(getWidth(), 1);
         int height = Math.max(getHeight(), 1);
 
-        carX1 += 2.4f; carX2 += 3.1f;
-        if (carX1 > width + 80) carX1 = -120;
-        if (carX2 > width + 120) carX2 = -180;
+        carX1 += 2.4f;
+        carX2 += 3.1f;
+        if (carX1 > width + 80)
+            carX1 = -120;
+        if (carX2 > width + 120)
+            carX2 = -180;
 
         roadOffset += 3f;
-        if (roadOffset > 70f) roadOffset -= 70f;
+        if (roadOffset > 70f)
+            roadOffset -= 70f;
 
         for (int i = 0; i < CLOUD_COUNT; i++) {
             cloudX[i] += cloudSpeed[i];
@@ -430,7 +440,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
     }
 }
 
-// ===================== (MenuButton & SettingsDialog remain unchanged) =====================
+// ===================== (MenuButton & SettingsDialog remain unchanged)
+// =====================
 
 class OpeningSceneDialog extends JDialog {
     private final Runnable onStoryComplete;
@@ -458,7 +469,7 @@ class OpeningSceneDialog extends JDialog {
             "scene4.jpg",
             "scene4.jpg"
     };
-    private final double[] sceneTiltDegrees = {-7.0, -9.5, -6.0, -12.0, -8.0, -5.5, -10.0, -7.5};
+    private final double[] sceneTiltDegrees = { -7.0, -9.5, -6.0, -12.0, -8.0, -5.5, -10.0, -7.5 };
 
     private int sceneIndex = 0;
     private boolean completionDispatched = false;
@@ -773,8 +784,7 @@ class OpeningSceneDialog extends JDialog {
                         "-ExecutionPolicy",
                         "Bypass",
                         "-Command",
-                        script
-                );
+                        script);
                 builder.redirectErrorStream(true);
                 windowsPlayerProcess = builder.start();
                 try {
@@ -820,14 +830,21 @@ public class homepage extends JFrame {
         gbc.weightx = 1.0;
 
         MenuButton startBtn = new MenuButton("START GAME");
+        MenuButton loadBtn = new MenuButton("LOAD GAME");
         MenuButton exitBtn = new MenuButton("EXIT");
         startBtn.setToolTipText(null);
+        loadBtn.setToolTipText(null);
         exitBtn.setToolTipText(null);
 
-        gbc.gridy = 0; backgroundPanel.add(startBtn, gbc);
-        gbc.gridy++; backgroundPanel.add(exitBtn, gbc);
+        gbc.gridy = 0;
+        backgroundPanel.add(startBtn, gbc);
+        gbc.gridy++;
+        backgroundPanel.add(loadBtn, gbc);
+        gbc.gridy++;
+        backgroundPanel.add(exitBtn, gbc);
 
         startBtn.addActionListener(e -> showOpeningScene());
+        loadBtn.addActionListener(e -> showLoadDialog());
         exitBtn.addActionListener(e -> System.exit(0));
 
         getRootPane().registerKeyboardAction(e -> System.exit(0),
@@ -844,26 +861,108 @@ public class homepage extends JFrame {
     }
 
     // private void onStoryFinished() {
-    //     backgroundPanel.setVisible(true);
-    //     backgroundPanel.startAnimation();
-    //     backgroundPanel.repaint();
+    // backgroundPanel.setVisible(true);
+    // backgroundPanel.startAnimation();
+    // backgroundPanel.repaint();
     // }
     private void onStoryFinished() {
-    // Instead of returning to menu, start the game
-    startGame();
-}
+        // Instead of returning to menu, start the game
+        startGame(null);
+    }
 
-private void startGame() {
-    // Hide the main menu
-    backgroundPanel.stopAnimation();
-    getContentPane().removeAll();
-    
-    // Create and show NEW reception panel (instead of GamePanel)
-    ReceptionPanel receptionPanel = new ReceptionPanel(this);
-    getContentPane().add(receptionPanel);
-    revalidate();
-    repaint();
-}
+    private void startGame(Hotel loadedHotel) {
+        // Hide the main menu
+        backgroundPanel.stopAnimation();
+        getContentPane().removeAll();
+
+        // Create and show NEW reception panel (instead of GamePanel)
+        ReceptionPanel receptionPanel = new ReceptionPanel(this, loadedHotel);
+        getContentPane().add(receptionPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void showLoadDialog() {
+        File savesDir = new File("saves");
+        if (!savesDir.exists() || savesDir.listFiles() == null || savesDir.listFiles().length == 0) {
+            JOptionPane.showMessageDialog(this, "No saved games found.");
+            return;
+        }
+        File[] saves = savesDir.listFiles((dir, name) -> name.endsWith(".ser"));
+        String[] names = new String[saves.length];
+        for (int i = 0; i < saves.length; i++) {
+            names[i] = saves[i].getName().replace(".ser", "");
+        }
+
+        // Create custom dialog with load and delete options
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.add(new JLabel("Select a saved game:"), BorderLayout.NORTH);
+
+        JList<String> saveList = new JList<>(names);
+        saveList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        saveList.setSelectedIndex(0);
+        JScrollPane scrollPane = new JScrollPane(saveList);
+        scrollPane.setPreferredSize(new Dimension(200, 150));
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton loadBtn = new JButton("Load Game");
+        JButton deleteBtn = new JButton("Delete Save");
+        JButton cancelBtn = new JButton("Cancel");
+
+        buttonPanel.add(loadBtn);
+        buttonPanel.add(deleteBtn);
+        buttonPanel.add(cancelBtn);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        JDialog dialog = new JDialog(this, "Load Game", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+
+        loadBtn.addActionListener(e -> {
+            String selected = saveList.getSelectedValue();
+            if (selected != null) {
+                dialog.dispose();
+                try {
+                    ObjectInputStream ois = new ObjectInputStream(
+                            new FileInputStream(new File(savesDir, selected + ".ser")));
+                    Hotel loadedHotel = (Hotel) ois.readObject();
+                    ois.close();
+                    startGame(loadedHotel);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Load failed: " + ex.getMessage());
+                }
+            }
+        });
+
+        deleteBtn.addActionListener(e -> {
+            String selected = saveList.getSelectedValue();
+            if (selected != null) {
+                int confirm = JOptionPane.showConfirmDialog(dialog,
+                        "Are you sure you want to delete '" + selected + "'?\nThis action cannot be undone!",
+                        "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    File saveFile = new File(savesDir, selected + ".ser");
+                    if (saveFile.delete()) {
+                        JOptionPane.showMessageDialog(dialog, "Save file deleted successfully!");
+                        dialog.dispose();
+                        // Refresh the dialog if there are still saves
+                        if (savesDir.listFiles((dir, name) -> name.endsWith(".ser")).length > 0) {
+                            showLoadDialog();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Failed to delete save file!");
+                    }
+                }
+            }
+        });
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
