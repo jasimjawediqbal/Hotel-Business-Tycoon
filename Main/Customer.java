@@ -4,7 +4,7 @@ import java.io.Serializable;
 public class Customer implements Serializable {
     private String name;
     private int paymentAmount;
-    private int satisfactionLevel; // 0-100
+    private int satisfactionLevel; 
     private boolean willLeaveReview;
 
     private static final String[] FIRST_NAMES = {
@@ -21,7 +21,7 @@ public class Customer implements Serializable {
         Random rand = new Random();
         this.name = FIRST_NAMES[rand.nextInt(FIRST_NAMES.length)] + " " +
                 LAST_NAMES[rand.nextInt(LAST_NAMES.length)];
-        this.satisfactionLevel = 50; // Neutral
+        this.satisfactionLevel = 50; 
         this.willLeaveReview = rand.nextBoolean();
     }
 
@@ -53,7 +53,6 @@ public class Customer implements Serializable {
             return -3;
     }
 
-    // Getters
     public String getName() {
         return name;
     }
@@ -70,15 +69,13 @@ public class Customer implements Serializable {
         return willLeaveReview;
     }
 
-    // Main method for testing
     public static void main(String[] args) {
         System.out.println("Testing Customer class:");
         System.out.println("=======================");
 
-        // Create and test multiple customers
         for (int i = 1; i <= 5; i++) {
             Customer customer = new Customer();
-            customer.setPayment(100 + (i * 20)); // Different payment amounts
+            customer.setPayment(100 + (i * 20)); 
 
             System.out.println("\nCustomer " + i + ":");
             System.out.println("Name: " + customer.getName());
@@ -86,7 +83,6 @@ public class Customer implements Serializable {
             System.out.println("Satisfaction Level: " + customer.getSatisfactionLevel() + "/100");
             System.out.println("Will Leave Review: " + customer.willLeaveReview());
 
-            // Test satisfaction adjustment
             customer.adjustSatisfaction(20);
             System.out.println("After +20 satisfaction: " + customer.getSatisfactionLevel() + "/100");
             System.out.println("Reputation Impact: " + customer.getReputationImpact());

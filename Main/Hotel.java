@@ -3,21 +3,23 @@ import java.util.List;
 import java.io.Serializable;
 
 public class Hotel implements Serializable {
+    private static final long serialVersionUID = 6482042822553431247L;
+    public static final String DEFAULT_HOTEL_NAME = "Golden Horizon Resort";
+    public static final int MAX_ROOMS = 150;
+
     private String name;
     private int money;
-    private int reputation; // 0-100
+    private int reputation; 
     private List<Room> rooms;
     private List<Employee> employees;
     private int dailyExpenses;
     private int totalRevenue;
     private int day;
 
-    // Story flags
     private boolean foundOldRegister;
     private boolean metRashid;
     private boolean exploringMystery;
 
-    // Chapter system
     private int currentChapter = 1;
     private boolean chapter1Complete = false;
     private boolean chapter2Complete = false;
@@ -25,31 +27,42 @@ public class Hotel implements Serializable {
     private boolean chapter4Complete = false;
     private boolean chapter5Complete = false;
     private boolean chapter6Complete = false;
+    private boolean chapter7Complete = false;
+    private boolean chapter8Complete = false;
+    private boolean chapter1StorySeen = false;
+    private boolean chapter2StorySeen = false;
+    private boolean chapter3StorySeen = false;
+    private boolean chapter4StorySeen = false;
+    private boolean chapter5StorySeen = false;
+    private boolean chapter6StorySeen = false;
+    private boolean chapter7StorySeen = false;
+    private boolean chapter8StorySeen = false;
+    private boolean chapter2DecisionMade = false;
+    private boolean chapter3DecisionMade = false;
 
-    // Additional flags
     private boolean rashidDebt = true;
     private boolean rivalApproached = false;
     private boolean rivalRefused = false;
     private boolean ghostRoomTruth = false;
     private boolean ghostRoomSealed = false;
+    private boolean treasureFound = false;
+    private boolean ownershipWarResolved = false;
 
-    // History logs
     private List<String> historyLogs = new ArrayList<>();
 
     public Hotel(String name) {
         this.name = name;
-        this.money = 500; // Starting money - very tight!
-        this.reputation = 20; // Poor reputation due to closure
+        this.money = 500; 
+        this.reputation = 20; 
         this.rooms = new ArrayList<>();
         this.employees = new ArrayList<>();
-        this.dailyExpenses = 50; // Basic utilities
+        this.dailyExpenses = 50; 
         this.totalRevenue = 0;
         this.day = 1;
         this.foundOldRegister = false;
         this.metRashid = false;
         this.exploringMystery = false;
 
-        // Initialize 4 starting rooms in poor condition
         initializeStartingRooms();
     }
 
@@ -60,7 +73,6 @@ public class Hotel implements Serializable {
         rooms.add(new Room(4, "Standard", RoomCondition.BROKEN));
     }
 
-    // Money management
     public boolean spendMoney(int amount) {
         if (money >= amount) {
             money -= amount;
@@ -74,17 +86,14 @@ public class Hotel implements Serializable {
         totalRevenue += amount;
     }
 
-    // REPLACE endDay() with this:
     public void endDay() {
         day++;
         money -= dailyExpenses;
         for (Employee emp : employees) {
             money -= emp.getDailySalary();
         }
-        // NOTE: checkout is now handled by ReceptionPanel, not here
     }
 
-    // ADD these two new methods anywhere in Hotel.java:
     public int getAvailableRoomCount() {
         int count = 0;
         for (Room room : rooms) {
@@ -95,34 +104,22 @@ public class Hotel implements Serializable {
         return count;
     }
 
-    public void addRooms(int count) {
+    public int addRooms(int count) {
+        if (count <= 0) {
+            return 0;
+        }
+        int current = rooms.size();
+        if (current >= MAX_ROOMS) {
+            return 0;
+        }
+        int allowed = Math.min(count, MAX_ROOMS - current);
         int nextNumber = rooms.size() + 1;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < allowed; i++) {
             rooms.add(new Room(nextNumber + i, "Standard", RoomCondition.POOR));
         }
+        return allowed;
     }
-    // // Daily operations
-    // public void endDay() {
-    // day++;
-    // money -= dailyExpenses;
 
-    // for (Employee emp : employees) {
-    // money -= emp.getDailySalary();
-    // }
-
-    // // Decrement nights for occupied rooms
-    // for (Room room : rooms) {
-    // if (room.isOccupied()) {
-    // room.decrementNight();
-    // if (room.getNightsBooked() <= 0) {
-    // Customer guest = room.checkOut();
-    // changeReputation(guest.getReputationImpact());
-    // }
-    // }
-    // }
-    // }
-
-    // Room management
     public Room getAvailableRoom() {
         for (Room room : rooms) {
             if (!room.isOccupied() && room.getCondition() != RoomCondition.BROKEN) {
@@ -154,7 +151,6 @@ public class Hotel implements Serializable {
         return false;
     }
 
-    // Reputation management
     public void changeReputation(int change) {
         reputation += change;
         if (reputation > 100)
@@ -163,7 +159,6 @@ public class Hotel implements Serializable {
             reputation = 0;
     }
 
-    // Employee management
     public void hireEmployee(Employee employee) {
         employees.add(employee);
         dailyExpenses += employee.getDailySalary();
@@ -178,7 +173,6 @@ public class Hotel implements Serializable {
         return false;
     }
 
-    // Getters
     public String getName() {
         return name;
     }
@@ -215,7 +209,6 @@ public class Hotel implements Serializable {
         return totalRevenue;
     }
 
-    // Getters and setters for chapters and flags
     public int getCurrentChapter() {
         return currentChapter;
     }
@@ -272,6 +265,102 @@ public class Hotel implements Serializable {
         chapter6Complete = b;
     }
 
+    public boolean isChapter7Complete() {
+        return chapter7Complete;
+    }
+
+    public void setChapter7Complete(boolean b) {
+        chapter7Complete = b;
+    }
+
+    public boolean isChapter8Complete() {
+        return chapter8Complete;
+    }
+
+    public void setChapter8Complete(boolean b) {
+        chapter8Complete = b;
+    }
+
+    public boolean isChapter1StorySeen() {
+        return chapter1StorySeen;
+    }
+
+    public void setChapter1StorySeen(boolean b) {
+        chapter1StorySeen = b;
+    }
+
+    public boolean isChapter2StorySeen() {
+        return chapter2StorySeen;
+    }
+
+    public void setChapter2StorySeen(boolean b) {
+        chapter2StorySeen = b;
+    }
+
+    public boolean isChapter3StorySeen() {
+        return chapter3StorySeen;
+    }
+
+    public void setChapter3StorySeen(boolean b) {
+        chapter3StorySeen = b;
+    }
+
+    public boolean isChapter4StorySeen() {
+        return chapter4StorySeen;
+    }
+
+    public void setChapter4StorySeen(boolean b) {
+        chapter4StorySeen = b;
+    }
+
+    public boolean isChapter5StorySeen() {
+        return chapter5StorySeen;
+    }
+
+    public void setChapter5StorySeen(boolean b) {
+        chapter5StorySeen = b;
+    }
+
+    public boolean isChapter6StorySeen() {
+        return chapter6StorySeen;
+    }
+
+    public void setChapter6StorySeen(boolean b) {
+        chapter6StorySeen = b;
+    }
+
+    public boolean isChapter7StorySeen() {
+        return chapter7StorySeen;
+    }
+
+    public void setChapter7StorySeen(boolean b) {
+        chapter7StorySeen = b;
+    }
+
+    public boolean isChapter8StorySeen() {
+        return chapter8StorySeen;
+    }
+
+    public void setChapter8StorySeen(boolean b) {
+        chapter8StorySeen = b;
+    }
+
+    public boolean isChapter2DecisionMade() {
+        return chapter2DecisionMade;
+    }
+
+    public void setChapter2DecisionMade(boolean b) {
+        chapter2DecisionMade = b;
+    }
+
+    public boolean isChapter3DecisionMade() {
+        return chapter3DecisionMade;
+    }
+
+    public void setChapter3DecisionMade(boolean b) {
+        chapter3DecisionMade = b;
+    }
+
     public boolean hasRashidDebt() {
         return rashidDebt;
     }
@@ -310,6 +399,22 @@ public class Hotel implements Serializable {
 
     public void setGhostRoomSealed(boolean b) {
         ghostRoomSealed = b;
+    }
+
+    public boolean isTreasureFound() {
+        return treasureFound;
+    }
+
+    public void setTreasureFound(boolean b) {
+        treasureFound = b;
+    }
+
+    public boolean isOwnershipWarResolved() {
+        return ownershipWarResolved;
+    }
+
+    public void setOwnershipWarResolved(boolean b) {
+        ownershipWarResolved = b;
     }
 
     public boolean hasMetRashid() {

@@ -56,7 +56,6 @@ public class Room implements Serializable {
         }
     }
 
-    // Getters
     public int getRoomNumber() {
         return roomNumber;
     }
@@ -85,12 +84,9 @@ public class Room implements Serializable {
         return nightsBooked;
     }
 
-    // public void decrementNight() {
-    // if (nightsBooked > 0) nightsBooked--;
-    // }
     public boolean decrementNight() {
         if (nightsBooked > 0)
             nightsBooked--;
-        return nightsBooked <= 0; // returns true when stay is finished
+        return nightsBooked <= 0; 
     }
 }

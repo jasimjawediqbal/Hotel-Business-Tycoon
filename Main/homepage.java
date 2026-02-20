@@ -1,9 +1,6 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -12,11 +9,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Random;
+import javax.sound.sampled.*;
+import java.net.URI;
 
-// ===================== MODEL =====================
 class SettingsModel {
     private boolean soundOn = true;
-    private int volume = 70; // 0-100%
+    private int volume = 70; 
 
     public boolean isSoundOn() {
         return soundOn;
@@ -35,7 +33,6 @@ class SettingsModel {
     }
 }
 
-// ===================== VIEW =====================
 class BackgroundPanel extends JPanel implements ActionListener {
     private static final int WINDOW_ROWS = 5;
     private static final int WINDOW_COLS = 5;
@@ -64,7 +61,7 @@ class BackgroundPanel extends JPanel implements ActionListener {
     private final Color[] confettiColor = new Color[CONFETTI_COUNT];
 
     private float cycle = 0f;
-    private final float cycleSpeed = 0.0007f; // ~24s per cycle at 60fps
+    private final float cycleSpeed = 0.0007f; 
     private float carX1 = 0f;
     private float carX2 = 200f;
     private float roadOffset = 0f;
@@ -74,7 +71,7 @@ class BackgroundPanel extends JPanel implements ActionListener {
     public BackgroundPanel() {
         setPreferredSize(new Dimension(900, 600));
         setLayout(null);
-        timer = new Timer(16, this); // ~60fps
+        timer = new Timer(16, this); 
         timer.start();
 
         for (int i = 0; i < windowLights.length; i++)
@@ -126,7 +123,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
         float day = (float) (0.5 - 0.5 * Math.cos(cycle * Math.PI * 2));
         float night = 1f - day;
 
-        // Sky gradient
         Color dayTop = new Color(135, 206, 235);
         Color dayBottom = new Color(180, 225, 255);
         Color nightTop = new Color(10, 14, 40);
@@ -136,7 +132,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.setPaint(new GradientPaint(0, 0, skyTop, 0, height, skyBottom));
         g2.fillRect(0, 0, width, height);
 
-        // Stars with glow
         if (night > 0.05f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f * night));
             for (int i = 0; i < STAR_COUNT; i++) {
@@ -150,7 +145,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
             g2.setComposite(AlphaComposite.SrcOver);
         }
 
-        // Sun/Moon
         float orbitRadius = width * 0.45f;
         float orbitCenterX = width * 0.5f;
         float orbitCenterY = height * 0.95f;
@@ -158,7 +152,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
         float orbX = orbitCenterX + (float) Math.cos(angle) * orbitRadius;
         float orbY = orbitCenterY + (float) Math.sin(angle) * orbitRadius * 0.6f;
 
-        // Sun
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, day));
         int sunSize = (int) (60 + 10 * day);
         g2.setPaint(new RadialGradientPaint(
@@ -167,7 +160,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
                 new Color[] { new Color(255, 230, 120), new Color(255, 180, 60, 0) }));
         g2.fillOval((int) (orbX - sunSize / 2), (int) (orbY - sunSize / 2), sunSize, sunSize);
 
-        // Moon
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, night));
         int moonSize = 45;
         g2.setColor(new Color(220, 230, 255));
@@ -176,21 +168,18 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.fillOval((int) (orbX - moonSize / 4), (int) (orbY - moonSize / 3), moonSize / 3, moonSize / 3);
         g2.setComposite(AlphaComposite.SrcOver);
 
-        // Clouds with subtle depth
         float cloudAlpha = 0.3f + 0.5f * day;
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, cloudAlpha));
         for (int i = 0; i < CLOUD_COUNT; i++)
             drawCloud(g2, cloudX[i], cloudY[i], cloudScale[i]);
         g2.setComposite(AlphaComposite.SrcOver);
 
-        // Hotel with more detailed facade
         int hotelWidth = width / 3;
         int hotelHeight = height / 2;
         int hotelX = width / 2 - hotelWidth / 2;
         int hotelY = height / 2 - hotelHeight / 2;
         drawHotelDetailed(g2, hotelX, hotelY, hotelWidth, hotelHeight, night);
 
-        // Road + sidewalk
         int roadY = hotelY + hotelHeight + 28;
         int roadH = height - roadY;
         g2.setColor(new Color(50, 52, 58));
@@ -208,11 +197,9 @@ class BackgroundPanel extends JPanel implements ActionListener {
         for (int x = 0; x < width; x += 40)
             g2.drawLine(x, walkY, x + 20, walkY + 18);
 
-        // Cars with shadows
         drawCar(g2, carX1, roadY + roadH / 2 - 22, new Color(220, 70, 70));
         drawCar(g2, carX2, roadY + roadH / 2 + 8, new Color(70, 140, 220));
 
-        // Confetti subtle
         for (int i = 0; i < CONFETTI_COUNT; i++) {
             int x = (int) (confettiX[i] * width);
             int y = (int) (confettiY[i] * height);
@@ -220,7 +207,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
             g2.fillOval(x, y, confettiSize[i], confettiSize[i]);
         }
 
-        // Title glow
         String title = "HOTEL TYCOON";
         g2.setFont(new Font("Serif", Font.BOLD, 48));
         int titleWidth = g2.getFontMetrics().stringWidth(title);
@@ -249,10 +235,8 @@ class BackgroundPanel extends JPanel implements ActionListener {
     private void drawCar(Graphics2D g2, float x, int y, Color body) {
         int w = 50;
         int h = 18;
-        // shadow
         g2.setColor(new Color(0, 0, 0, 100));
         g2.fillRoundRect((int) x + 3, y + h - 2 + 3, w, h / 3, 8, 8);
-        // body
         g2.setColor(body);
         g2.fillRoundRect((int) x, y, w, h, 8, 8);
         g2.fillRoundRect((int) x + 8, y - 10, 32, 14, 8, 8);
@@ -266,11 +250,9 @@ class BackgroundPanel extends JPanel implements ActionListener {
     private void drawHotelDetailed(Graphics2D g2, int x, int y, int w, int h, float night) {
         int depth = Math.max(18, w / 8);
 
-        // Building shadow
         g2.setColor(new Color(0, 0, 0, 90));
         g2.fillRoundRect(x + depth + 8, y + 8, w, h, 10, 10);
 
-        // Side wall for depth
         Polygon side = new Polygon();
         side.addPoint(x + w, y);
         side.addPoint(x + w + depth, y + depth / 2);
@@ -280,24 +262,20 @@ class BackgroundPanel extends JPanel implements ActionListener {
                 new GradientPaint(x + w, y, new Color(175, 150, 120), x + w + depth, y + h, new Color(140, 120, 95)));
         g2.fillPolygon(side);
 
-        // Main facade
         g2.setPaint(new GradientPaint(x, y, new Color(230, 205, 170), x, y + h, new Color(185, 160, 125)));
         g2.fillRoundRect(x, y, w, h, 10, 10);
 
-        // Roof and parapet
         g2.setColor(new Color(155, 135, 110));
         g2.fillRect(x - 2, y - 16, w + 4, 16);
         g2.setColor(new Color(130, 110, 90));
         g2.fillRect(x - 4, y - 22, w + 8, 8);
 
-        // Vertical pilasters
         g2.setColor(new Color(200, 175, 145));
         for (int i = 1; i <= 3; i++) {
             int px = x + i * w / 4 - 6;
             g2.fillRoundRect(px, y + 8, 10, h - 16, 6, 6);
         }
 
-        // Hotel sign with glow
         int signW = (int) (w * 0.62f);
         int signH = 28;
         int signX = x + w / 2 - signW / 2;
@@ -307,12 +285,16 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.setColor(new Color(255, 230, 160, (int) (180 + 60 * night)));
         g2.setStroke(new BasicStroke(2f));
         g2.drawRoundRect(signX + 2, signY + 2, signW - 4, signH - 4, 8, 8);
-        g2.setFont(new Font("Serif", Font.BOLD, 18));
-        String boardName = "Hotel Taj";
+        Font signFont = new Font("Serif", Font.BOLD, 18);
+        String boardName = Hotel.DEFAULT_HOTEL_NAME;
+        g2.setFont(signFont);
+        while (g2.getFontMetrics().stringWidth(boardName) > signW - 12 && signFont.getSize() > 10) {
+            signFont = signFont.deriveFont((float) (signFont.getSize() - 1));
+            g2.setFont(signFont);
+        }
         int boardX = signX + (signW - g2.getFontMetrics().stringWidth(boardName)) / 2;
         g2.drawString(boardName, boardX, signY + 20);
 
-        // Windows with frames and reflections
         int rows = WINDOW_ROWS;
         int cols = WINDOW_COLS;
         int gap = 8;
@@ -337,7 +319,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
             }
         }
 
-        // Entrance canopy and doors
         int doorW = w / 5;
         int doorH = h / 4;
         int doorX = x + w / 2 - doorW / 2;
@@ -352,13 +333,11 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.setColor(new Color(120, 100, 80));
         g2.fillRect(doorX - 30, doorY + doorH, doorW + 60, 28);
 
-        // Steps
         g2.setColor(new Color(140, 140, 145));
         g2.fillRect(doorX - 40, doorY + doorH + 10, doorW + 80, 10);
         g2.setColor(new Color(120, 120, 125));
         g2.fillRect(doorX - 30, doorY + doorH + 2, doorW + 60, 8);
 
-        // Landscaping (aligned with steps)
         int stepTopY = doorY + doorH + 2;
         int bushY = stepTopY + 2;
         int bushW = 32;
@@ -370,7 +349,6 @@ class BackgroundPanel extends JPanel implements ActionListener {
         g2.fillOval(x - 6, bushY - 8, bushW - 8, bushH - 2);
         g2.fillOval(x + w - (bushW - 6), bushY - 8, bushW - 8, bushH - 2);
 
-        // Lamps (sit on sidewalk line)
         int lampY = stepTopY + 18;
         drawLamp(g2, x - 26, lampY, night);
         drawLamp(g2, x + w + 8, lampY, night);
@@ -440,15 +418,11 @@ class BackgroundPanel extends JPanel implements ActionListener {
     }
 }
 
-// ===================== (MenuButton & SettingsDialog remain unchanged)
-// =====================
-
 class OpeningSceneDialog extends JDialog {
     private final Runnable onStoryComplete;
     private final JTextPane narrativeArea = new JTextPane();
     private final JLabel continueLabel = new JLabel("Press Enter to continue", SwingConstants.CENTER);
     private final PhotoNotePanel photoNotePanel = new PhotoNotePanel();
-    private final RainAudioPlayer rainAudioPlayer = new RainAudioPlayer();
     private final String[] scenes = {
             "\"Some places don't die.\nThey wait.\"",
             "\nA small, dimly lit rented room in a distant city.\nArman sits on the edge of the bed, still in work clothes: tired, worn, but alert.",
@@ -524,7 +498,6 @@ class OpeningSceneDialog extends JDialog {
 
         setupKeyBindings(root);
         layoutStoryComponents();
-        playRainForStory();
         showScene(0);
     }
 
@@ -626,11 +599,6 @@ class OpeningSceneDialog extends JDialog {
         photoNotePanel.repaint();
     }
 
-    private void playRainForStory() {
-        File rainFile = resolveAssetFile("rain.mp3");
-        rainAudioPlayer.start(rainFile);
-    }
-
     private File resolveAssetFile(String fileName) {
         File local = new File(fileName);
         if (local.exists()) {
@@ -641,7 +609,6 @@ class OpeningSceneDialog extends JDialog {
 
     @Override
     public void dispose() {
-        rainAudioPlayer.stop();
         super.dispose();
     }
 
@@ -719,103 +686,76 @@ class OpeningSceneDialog extends JDialog {
         }
     }
 
-    private static class RainAudioPlayer {
-        private Clip clip;
-        private Process windowsPlayerProcess;
+}
 
-        public void start(File audioFile) {
-            stop();
-            if (audioFile == null || !audioFile.exists()) {
+
+class GlobalSoundtrackPlayer {
+    private static Clip clip;
+    private static boolean initialized = false;
+
+    public static synchronized void startLoop() {
+        if (initialized) return;
+        initialized = true;
+        try {
+            File file = resolveAssetFile("soundtrack.wav");
+            if (!file.exists()) {
+                System.err.println("soundtrack.wav not found.");
                 return;
             }
-
-            if (startWithJavaClip(audioFile)) {
-                return;
-            }
-
-            if (isWindows() && startWithWindowsMediaPlayer(audioFile)) {
-                return;
-            }
-
-            System.err.println("Rain audio could not be played: File of unsupported format");
-        }
-
-        public void stop() {
-            if (clip != null) {
-                clip.stop();
-                clip.close();
-                clip = null;
-            }
-            if (windowsPlayerProcess != null) {
-                windowsPlayerProcess.destroy();
-                windowsPlayerProcess = null;
-            }
-        }
-
-        private boolean startWithJavaClip(File audioFile) {
-            try (AudioInputStream stream = AudioSystem.getAudioInputStream(audioFile)) {
-                clip = AudioSystem.getClip();
-                clip.open(stream);
-                clip.loop(Clip.LOOP_CONTINUOUSLY);
-                clip.start();
-                return true;
-            } catch (Exception ex) {
-                return false;
-            }
-        }
-
-        private boolean startWithWindowsMediaPlayer(File audioFile) {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            // Set volume to maximum if possible
+            FloatControl volume = null;
             try {
-                String path = audioFile.getAbsolutePath().replace("\\", "\\\\").replace("'", "''");
-                String script = "$ErrorActionPreference='Stop';"
-                        + "Add-Type -AssemblyName presentationCore;"
-                        + "$player=New-Object System.Windows.Media.MediaPlayer;"
-                        + "$player.Open([Uri]'" + path + "');"
-                        + "$player.Volume=0.70;"
-                        + "$player.MediaEnded += { $player.Position=[TimeSpan]::Zero; $player.Play() };"
-                        + "$player.Play();"
-                        + "while($true){ Start-Sleep -Milliseconds 300 }";
-
-                ProcessBuilder builder = new ProcessBuilder(
-                        "powershell",
-                        "-NoProfile",
-                        "-WindowStyle",
-                        "Hidden",
-                        "-ExecutionPolicy",
-                        "Bypass",
-                        "-Command",
-                        script);
-                builder.redirectErrorStream(true);
-                windowsPlayerProcess = builder.start();
-                try {
-                    Thread.sleep(120);
-                } catch (InterruptedException interruptedException) {
-                    Thread.currentThread().interrupt();
-                }
-                if (!windowsPlayerProcess.isAlive()) {
-                    windowsPlayerProcess = null;
-                    return false;
-                }
-                return true;
+                volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                volume.setValue(volume.getMaximum());
             } catch (Exception ex) {
-                return false;
+                System.err.println("Volume control not supported.");
             }
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
+            System.out.println("Background music started.");
+        } catch (Exception e) {
+            System.err.println("Error playing soundtrack.wav: " + e.getMessage());
+            initialized = false;
         }
+    }
 
-        private boolean isWindows() {
-            return System.getProperty("os.name", "").toLowerCase().contains("win");
+    private static File resolveAssetFile(String fileName) {
+        File local = new File(fileName);
+        if (local.exists()) {
+            return local;
+        }
+        return new File("..", fileName);
+    }
+
+    public static synchronized boolean isRunning() {
+        return clip != null && clip.isRunning();
+    }
+
+    public static synchronized void stopLoop() {
+        if (clip != null) {
+            clip.stop();
+            clip.close();
+            clip = null;
+            initialized = false;
         }
     }
 }
 
-// ===================== CONTROLLER =====================
 public class homepage extends JFrame {
     private final BackgroundPanel backgroundPanel;
+    private boolean fullscreen = false;
+    // Removed soundtrackWatchdog
 
     public homepage() {
         setTitle("Hotel Tycoon");
+        GlobalSoundtrackPlayer.startLoop();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setMinimumSize(new Dimension(960, 640));
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
         backgroundPanel = new BackgroundPanel();
@@ -850,6 +790,25 @@ public class homepage extends JFrame {
         getRootPane().registerKeyboardAction(e -> System.exit(0),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(e -> toggleFullscreen(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        // No watchdog needed, player auto-repeats
+    }
+
+    private void toggleFullscreen() {
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        fullscreen = !fullscreen;
+        dispose();
+        setUndecorated(fullscreen);
+        if (fullscreen) {
+            device.setFullScreenWindow(this);
+        } else {
+            device.setFullScreenWindow(null);
+            setVisible(true);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
+        setVisible(true);
     }
 
     private void showOpeningScene() {
@@ -860,22 +819,14 @@ public class homepage extends JFrame {
         openingSceneDialog.setVisible(true);
     }
 
-    // private void onStoryFinished() {
-    // backgroundPanel.setVisible(true);
-    // backgroundPanel.startAnimation();
-    // backgroundPanel.repaint();
-    // }
     private void onStoryFinished() {
-        // Instead of returning to menu, start the game
         startGame(null);
     }
 
     private void startGame(Hotel loadedHotel) {
-        // Hide the main menu
         backgroundPanel.stopAnimation();
         getContentPane().removeAll();
 
-        // Create and show NEW reception panel (instead of GamePanel)
         ReceptionPanel receptionPanel = new ReceptionPanel(this, loadedHotel);
         getContentPane().add(receptionPanel);
         revalidate();
@@ -883,18 +834,16 @@ public class homepage extends JFrame {
     }
 
     private void showLoadDialog() {
-        File savesDir = new File("saves");
-        if (!savesDir.exists() || savesDir.listFiles() == null || savesDir.listFiles().length == 0) {
+        File[] saves = SaveFileManager.listSaveFiles();
+        if (saves.length == 0) {
             JOptionPane.showMessageDialog(this, "No saved games found.");
             return;
         }
-        File[] saves = savesDir.listFiles((dir, name) -> name.endsWith(".ser"));
         String[] names = new String[saves.length];
         for (int i = 0; i < saves.length; i++) {
             names[i] = saves[i].getName().replace(".ser", "");
         }
 
-        // Create custom dialog with load and delete options
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.add(new JLabel("Select a saved game:"), BorderLayout.NORTH);
 
@@ -926,10 +875,7 @@ public class homepage extends JFrame {
             if (selected != null) {
                 dialog.dispose();
                 try {
-                    ObjectInputStream ois = new ObjectInputStream(
-                            new FileInputStream(new File(savesDir, selected + ".ser")));
-                    Hotel loadedHotel = (Hotel) ois.readObject();
-                    ois.close();
+                    Hotel loadedHotel = SaveFileManager.load(selected);
                     startGame(loadedHotel);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Load failed: " + ex.getMessage());
@@ -944,12 +890,10 @@ public class homepage extends JFrame {
                         "Are you sure you want to delete '" + selected + "'?\nThis action cannot be undone!",
                         "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (confirm == JOptionPane.YES_OPTION) {
-                    File saveFile = new File(savesDir, selected + ".ser");
-                    if (saveFile.delete()) {
+                    if (SaveFileManager.delete(selected)) {
                         JOptionPane.showMessageDialog(dialog, "Save file deleted successfully!");
                         dialog.dispose();
-                        // Refresh the dialog if there are still saves
-                        if (savesDir.listFiles((dir, name) -> name.endsWith(".ser")).length > 0) {
+                        if (SaveFileManager.listSaveFiles().length > 0) {
                             showLoadDialog();
                         }
                     } else {
@@ -965,9 +909,11 @@ public class homepage extends JFrame {
     }
 
     public static void main(String[] args) {
+        GlobalSoundtrackPlayer.startLoop();
         SwingUtilities.invokeLater(() -> {
             homepage menu = new homepage();
             menu.setVisible(true);
         });
     }
 }
+
